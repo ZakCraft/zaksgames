@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Zak's Games 🎮</title>
+
+  <!-- Favicon as SVG data URI -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>"/>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+
+  <!-- Chart.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+  <style>
+    :root {
+      --sky:    #6EC6F5;
+      --grass:  #5DBB63;
+      --sun:    #FFD93D;
+      --coral:  #FF6B6B;
+      --purple: #A29BFE;
+      --mint:   #81ECEC;
+      --dark:   #2D3436;
+      --card-bg: rgba(255,255,255,0.92);
+      --shadow: 0 8px 32px rgba(45,52,54,0.13);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: linear-gradient(160deg, #b8e8fb 0%, #d4f5d4 50%, #ffe8a0 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+      color: var(--dark);
+    }
+
+    /* ── FLOATING STARS ── */
+    .stars { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+    .star {
+      position: absolute;
+      border-radius: 50%;
+      background: #fff;
+      opacity: 0.6;
+      animation: twinkle 3s infinite ease-in-out;
+    }
+    @keyframes twinkle {
+      0%,100% { transform: scale(1); opacity: 0.5; }
+      50%      { transform: scale(1.7); opacity: 1; }
+    }
+
+    /* ── HEADER ── */
+    header {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      padding: 2.5rem 1rem 1.5rem;
+    }
+    .logo {
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(2.8rem, 8vw, 5.5rem);
+      background: linear-gradient(135deg, #ff6b6b, #ffd93d, #6bcb77, #4d96ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.18));
+      animation: float 4s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-10px); }
+    }
+    .tagline {
+      margin-top: .4rem;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      letter-spacing: .04em;
+    }
+
+    /* ── NAV ── */
+    nav {
+      display: flex;
+      justify-content: center;
+      gap: .8rem;
+      flex-wrap: wrap;
+      padding: .8rem 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(255,255,255,0.55);
+      backdrop-filter: blur(12px);
+      border-bottom: 2px solid rgba(255,255,255,0.7);
+    }
+    nav a {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1rem;
+      color: var(--dark);
+      text-decoration: none;
+      padding: .35rem .9rem;
+      border-radius: 30px;
+      background: rgba(255,255,255,0.7);
+      border: 2px solid transparent;
+      transition: all .2s;
+    }
+    nav a:hover {
+      background: var(--sun);
+      border-color: var(--coral);
+      transform: translateY(-2px);
+    }
+
+    /* ── MAIN WRAPPER ── */
+    main {
+      position: relative;
+      z-index: 5;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 1.5rem 1.2rem 4rem;
+    }
+
+    /* ── SECTION TITLES ── */
+    .section-title {
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(1.8rem, 5vw, 2.8rem);
+      text-align: center;
+      margin: 3rem 0 1.5rem;
+      position: relative;
+    }
+    .section-title span {
+      background: linear-gradient(90deg, var(--coral), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .section-title::after {
+      content: '';
+      display: block;
+      width: 80px;
+      height: 4px;
+      border-radius: 4px;
+      background: linear-gradient(90deg, var(--coral), var(--sun));
+      margin: .5rem auto 0;
+    }
+
+    /* ── BIO CARD ── */
+    .bio-card {
+      background: var(--card-bg);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      padding: 2rem;
+      display: flex;
+      gap: 2rem;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      border: 3px solid rgba(255,255,255,0.9);
+      position: relative;
+      overflow: hidden;
+    }
+    .bio-card::before {
+      content: '';
+      position: absolute;
+      top: -40px; right: -40px;
+      width: 160px; height: 160px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ffd93d55, #ff6b6b33);
+      pointer-events: none;
+    }
+    .bio-photo {
+      flex: 0 0 auto;
+      width: clamp(160px, 30%, 220px);
+    }
+    .bio-photo img {
+      width: 100%;
+      border-radius: 20px;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.18);
+      border: 4px solid var(--sun);
+      display: block;
+    }
+    .bio-text { flex: 1 1 260px; }
+    .bio-text h2 {
+      font-family: 'Fredoka One', cursive;
+      font-size: 2rem;
+      color: var(--coral);
+      margin-bottom: .6rem;
+    }
+    .bio-text p {
+      font-size: 1.05rem;
+      line-height: 1.75;
+      color: #444;
+      margin-bottom: .8rem;
+    }
+    .bio-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
+      margin-top: .8rem;
+    }
+    .badge {
+      background: linear-gradient(135deg, var(--sun), var(--coral));
+      color: #fff;
+      font-weight: 700;
+      font-size: .88rem;
+      padding: .3rem .8rem;
+      border-radius: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.1);
+    }
+    .badge.blue   { background: linear-gradient(135deg, var(--sky), var(--purple)); }
+    .badge.green  { background: linear-gradient(135deg, var(--grass), var(--mint)); }
+    .badge.purple { background: linear-gradient(135deg, var(--purple), var(--coral)); }
+
+    /* ── GAMES GRID ── */
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+      gap: 1.8rem;
+      margin-top: 1rem;
+    }
+    .game-card {
+      background: var(--card-bg);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      border: 3px solid rgba(255,255,255,0.85);
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform .25s, box-shadow .25s;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .game-card:hover {
+      transform: translateY(-8px) rotate(-1deg);
+      box-shadow: 0 20px 48px rgba(0,0,0,0.18);
+    }
+    .game-card:hover .card-arrow { opacity: 1; transform: translateX(0); }
+
+    .card-banner {
+      height: 130px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .card-banner::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: inherit;
+      filter: blur(20px) saturate(1.4);
+      opacity: .25;
+      z-index: 0;
+    }
+    .card-banner-emoji { position: relative; z-index: 1; animation: wiggle 3s ease-in-out infinite; }
+    @keyframes wiggle {
+      0%,100% { transform: rotate(-5deg) scale(1); }
+      50%      { transform: rotate(5deg) scale(1.1); }
+    }
+
+    .card-body { padding: 1.2rem 1.3rem 1.4rem; flex: 1; display: flex; flex-direction: column; }
+    .card-title {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.3rem;
+      color: var(--dark);
+      margin-bottom: .4rem;
+    }
+    .card-desc { font-size: .95rem; color: #666; flex: 1; line-height: 1.6; }
+    .card-cta {
+      margin-top: 1rem;
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      font-family: 'Fredoka One', cursive;
+      font-size: 1rem;
+      padding: .5rem 1.2rem;
+      border-radius: 30px;
+      color: #fff;
+      width: fit-content;
+      box-shadow: 0 4px 12px rgba(0,0,0,.15);
+      transition: filter .2s;
+    }
+    .game-card:hover .card-cta { filter: brightness(1.1); }
+    .card-arrow {
+      opacity: 0;
+      transform: translateX(-6px);
+      transition: all .2s;
+    }
+
+    /* ── DONATION ── */
+    .donation-card {
+      background: linear-gradient(135deg, #fff9e6, #fff);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      border: 3px solid var(--sun);
+      padding: 2rem 2.2rem;
+      text-align: center;
+      max-width: 560px;
+      margin: 0 auto;
+    }
+    .donation-card h3 {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.8rem;
+      color: var(--coral);
+      margin-bottom: .6rem;
+    }
+    .donation-card p { color: #555; line-height: 1.7; margin-bottom: 1.2rem; }
+    .donate-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      background: #0070ba;
+      color: #fff;
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.15rem;
+      padding: .7rem 1.8rem;
+      border-radius: 40px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 6px 18px rgba(0,112,186,.35);
+      transition: transform .2s, box-shadow .2s;
+    }
+    .donate-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 28px rgba(0,112,186,.45);
+    }
+    .donate-note { font-size: .85rem; color: #aaa; margin-top: .8rem; }
+
+    /* ── CHARTS SECTION ── */
+    .charts-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.8rem;
+    }
+    .chart-card {
+      background: var(--card-bg);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      border: 3px solid rgba(255,255,255,0.85);
+      padding: 1.4rem 1.4rem 1.2rem;
+    }
+    .chart-card h4 {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.15rem;
+      color: var(--purple);
+      margin-bottom: .9rem;
+      text-align: center;
+    }
+
+    /* ── FUN FACTS ── */
+    .facts-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.2rem;
+      justify-content: center;
+    }
+    .fact-pill {
+      background: rgba(255,255,255,0.88);
+      border-radius: 20px;
+      padding: .9rem 1.3rem;
+      font-size: .98rem;
+      font-weight: 700;
+      color: var(--dark);
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      border: 2px solid rgba(255,255,255,0.8);
+      animation: popIn .5s ease both;
+    }
+    @keyframes popIn {
+      from { transform: scale(.7); opacity: 0; }
+      to   { transform: scale(1);  opacity: 1; }
+    }
+    .fact-pill .fi { font-size: 1.5rem; }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      font-size: .9rem;
+      color: rgba(255,255,255,0.85);
+      font-weight: 700;
+      text-shadow: 0 1px 4px rgba(0,0,0,.2);
+      position: relative;
+      z-index: 5;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 580px) {
+      .bio-card { flex-direction: column; align-items: center; }
+      .bio-photo { width: 180px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Floating Stars -->
+<div class="stars" id="stars"></div>
+
+<!-- ── HEADER ── -->
+<header>
+  <div class="logo">🎮 Zak's Games</div>
+  <p class="tagline">Fun games, zero ads, made with ❤️ by Zak &amp; family</p>
+</header>
+
+<!-- ── NAV ── -->
+<nav>
+  <a href="#about">👦 About Zak</a>
+  <a href="#games">🕹️ Games</a>
+  <a href="#stats">📊 Fun Stats</a>
+  <a href="#donate">💛 Support Us</a>
+</nav>
+
+<main>
+
+  <!-- ── ABOUT ── -->
+  <div class="section-title" id="about"><span>👦 Meet Zak</span></div>
+
+  <div class="bio-card">
+    <div class="bio-photo">
+      <img src="zakphoto.jpeg" alt="Zak - Ghibli style illustration" />
+    </div>
+    <div class="bio-text">
+      <h2>Hi, I'm Zak! 👋</h2>
+      <p>
+        My name is <strong>Zak</strong>, and I'm <strong>10 years old</strong>. I love learning new things every day!
+        Some of my favourite things are playing <strong>Minecraft</strong>, learning <strong>chess</strong>,
+        reading about <strong>American and Medieval history</strong>, and learning how to do <strong>computer coding</strong>.
+      </p>
+      <p>
+        I built this games website as a fun project with my <strong>dad</strong> and my <strong>5-year-old brother Zayd</strong>. 🧑‍💻
+        We want to make great free games that everyone can enjoy — with <strong>no ads and no trackers</strong>. Ever!
+      </p>
+      <p>
+        If you enjoy the games, please think about making a small donation to help us pay for the website. It means a lot to us! 💛
+      </p>
+      <div class="bio-badges">
+        <span class="badge">🎮 Minecraft Fan</span>
+        <span class="badge blue">♟️ Chess Player</span>
+        <span class="badge green">📜 History Buff</span>
+        <span class="badge purple">💻 Junior Coder</span>
+        <span class="badge">🏰 Medieval Nerd</span>
+        <span class="badge green">🇺🇸 US History</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── GAMES ── -->
+  <div class="section-title" id="games"><span>🕹️ Play Games!</span></div>
+
+  <div class="games-grid">
+
+    <!-- Tic-Tac-Toe -->
+    <a class="game-card" href="https://zakcraft.github.io/tictactoe/" target="_blank" rel="noopener">
+      <div class="card-banner" style="background: linear-gradient(135deg,#ffd93d,#ff6b6b);">
+        <span class="card-banner-emoji">❌⭕</span>
+      </div>
+      <div class="card-body">
+        <div class="card-title">Tic-Tac-Toe</div>
+        <div class="card-desc">Play the classic X's and O's game made by Zak &amp; Zayd! Can you beat the computer — or challenge a friend?</div>
+        <span class="card-cta" style="background: linear-gradient(135deg,#ff6b6b,#ffd93d);">
+          Play now <span class="card-arrow">→</span>
+        </span>
+      </div>
+    </a>
+
+    <!-- Rock Paper Scissors -->
+    <a class="game-card" href="https://zakcraft.github.io/rpsbattle/" target="_blank" rel="noopener">
+      <div class="card-banner" style="background: linear-gradient(135deg,#6bcb77,#4d96ff);">
+        <span class="card-banner-emoji">✊✋✌️</span>
+      </div>
+      <div class="card-body">
+        <div class="card-title">Rock Paper Scissors Battle 🌐</div>
+        <div class="card-desc">The epic online Rock Paper Scissors showdown! Challenge players around the world in real time!</div>
+        <span class="card-cta" style="background: linear-gradient(135deg,#4d96ff,#6bcb77);">
+          Play now <span class="card-arrow">→</span>
+        </span>
+      </div>
+    </a>
+
+    <!-- Medieval Chess -->
+    <a class="game-card" href="https://zakcraft.github.io/medievalchess/" target="_blank" rel="noopener">
+      <div class="card-banner" style="background: linear-gradient(135deg,#a29bfe,#fd79a8);">
+        <span class="card-banner-emoji">♟️🏰</span>
+      </div>
+      <div class="card-body">
+        <div class="card-title">Medieval Chess</div>
+        <div class="card-desc">Chess with a cool medieval twist! Knights, castles, and kings — fight for your kingdom on the chessboard!</div>
+        <span class="card-cta" style="background: linear-gradient(135deg,#a29bfe,#fd79a8);">
+          Play now <span class="card-arrow">→</span>
+        </span>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- ── FUN STATS ── -->
+  <div class="section-title" id="stats"><span>📊 Fun Stats</span></div>
+
+  <div class="charts-row">
+    <div class="chart-card">
+      <h4>🎮 Zak's Favourite Things</h4>
+      <canvas id="donutChart" height="220"></canvas>
+    </div>
+    <div class="chart-card">
+      <h4>⏱️ Time Zak Spends on Hobbies (hrs/week)</h4>
+      <canvas id="barChart" height="220"></canvas>
+    </div>
+  </div>
+
+  <!-- Fun fact pills -->
+  <div class="facts-row" style="margin-top:1.8rem;">
+    <div class="fact-pill" style="animation-delay:.1s"><span class="fi">🎮</span> 3 games &amp; counting!</div>
+    <div class="fact-pill" style="animation-delay:.2s"><span class="fi">🚫</span> Zero ads. Always.</div>
+    <div class="fact-pill" style="animation-delay:.3s"><span class="fi">👨‍👧‍👦</span> Made by a family</div>
+    <div class="fact-pill" style="animation-delay:.4s"><span class="fi">🆓</span> 100% Free to play</div>
+    <div class="fact-pill" style="animation-delay:.5s"><span class="fi">🌍</span> Players worldwide</div>
+    <div class="fact-pill" style="animation-delay:.6s"><span class="fi">💻</span> Built with code & love</div>
+  </div>
+
+  <!-- ── DONATE ── -->
+  <div class="section-title" id="donate"><span>💛 Support Zak's Games</span></div>
+
+  <div class="donation-card">
+    <h3>Help Us Keep Going! 🙏</h3>
+    <p>
+      All our games are <strong>free</strong> and have <strong>no ads</strong>. But running a website costs money.
+      If you enjoy the games, even a tiny donation helps Zak &amp; family keep building cool stuff for everyone! 🚀
+    </p>
+    <!-- Replace YOUR-PAYPAL-EMAIL@EMAIL.COM with the real PayPal email once you have it -->
+    <a
+      class="donate-btn"
+      href="https://www.paypal.com/donate/?business=YOUR-PAYPAL-EMAIL@EMAIL.COM&currency_code=USD"
+      target="_blank"
+      rel="noopener"
+    >
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M7.144 19.532l1.049-5.751c.11-.607.691-1.047 1.304-.918l.108.024C11.49 13.349 14 12.765 14 9.5c0-3-2.5-4-5-4H4.5L2 19h3l.5-3h.85l.794 3.532zM5.5 14l1-5h3c1.381 0 2.5.895 2.5 2.5S11.381 14 10 14H5.5zM17.5 8h-2l-2 10h2l.5-2.5h1.5c2.5 0 4.5-1.5 4.5-4 0-2-1.5-3.5-4.5-3.5zm.5 5.5h-1.25l.75-3.5H18.5c1 0 1.5.5 1.5 1.5s-.5 2-2 2z"/></svg>
+      Donate via PayPal
+    </a>
+    <p class="donate-note">
+      💡 <em>Your donation helps pay for the website hosting and domain name. Thank you so much!</em>
+    </p>
+  </div>
+
+</main>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <p>🎮 Zak's Games &nbsp;·&nbsp; Made with ❤️ by Zak, Dad &amp; Zayd &nbsp;·&nbsp; Free. No Ads. No Trackers. Always.</p>
+</footer>
+
+<script>
+  /* ── STARS ── */
+  const starsEl = document.getElementById('stars');
+  for (let i = 0; i < 40; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 5 + 2;
+    s.style.cssText = `
+      width:${size}px; height:${size}px;
+      top:${Math.random()*100}%;
+      left:${Math.random()*100}%;
+      animation-delay:${Math.random()*3}s;
+      animation-duration:${2+Math.random()*3}s;
+    `;
+    starsEl.appendChild(s);
+  }
+
+  /* ── DONUT CHART ── */
+  new Chart(document.getElementById('donutChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Video Games 🎮','Chess ♟️','History 📜','Coding 💻','Reading 📚'],
+      datasets: [{
+        data: [30, 25, 20, 15, 10],
+        backgroundColor: ['#FF6B6B','#A29BFE','#FFD93D','#6BCB77','#4D96FF'],
+        borderWidth: 3,
+        borderColor: '#fff',
+        hoverOffset: 12
+      }]
+    },
+    options: {
+      cutout: '62%',
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { family:'Nunito', weight:'700', size:12 }, padding: 14 } }
+      },
+      animation: { animateRotate: true, duration: 1200 }
+    }
+  });
+
+  /* ── BAR CHART ── */
+  new Chart(document.getElementById('barChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Games','Chess','History','Coding','School'],
+      datasets: [{
+        label: 'Hours per week',
+        data: [8, 5, 4, 3, 30],
+        backgroundColor: ['#FF6B6B','#A29BFE','#FFD93D','#6BCB77','#4D96FF'],
+        borderRadius: 10,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, grid: { color:'rgba(0,0,0,.06)' },
+          ticks: { font: { family:'Nunito', weight:'700' } }
+        },
+        x: { grid: { display: false },
+          ticks: { font: { family:'Nunito', weight:'700' } }
+        }
+      },
+      animation: { duration: 1200 }
+    }
+  });
+</script>
+</body>
+</html>
